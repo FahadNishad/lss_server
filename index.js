@@ -6,11 +6,8 @@ require("dotenv").config(); // Load environment variables
 const app = express();
 
 // CORS configuration
-app.use(
-  cors({
-    origin: "*",
-  })
-);
+app.use(cors({ origin: "*" }));
+
 // // CORS configuration
 // app.use(cors({
 //   origin: 'http://localhost:3000', // Replace with your frontend URL

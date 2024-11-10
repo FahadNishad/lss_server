@@ -5,7 +5,7 @@ const User = require("../models/User"); // Adjust the path to your User model as
 const router = express.Router();
 
 // Login Route
-router.post("/login", async (req, res) => {
+router.post("/", async (req, res) => {
   const { email, password } = req.body;
 
   try {
@@ -16,7 +16,9 @@ router.post("/login", async (req, res) => {
     }
 
     // Compare the password with the hashed password
-    const isMatch = await bcrypt.compare(password, user.password);
+    // const isMatch = await bcrypt.compare(password, user.password);
+    const isMatch = password === user.password;
+
     if (!isMatch) {
       return res.status(401).json({ message: "Incorrect password" });
     }
