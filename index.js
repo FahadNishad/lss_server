@@ -1,14 +1,20 @@
-const mongoose = require("mongoose");
-const express = require("express");
-const cors = require("cors");
-require("dotenv").config(); // Load environment variables
+import mongoose from "mongoose";
+import express from "express";
+import cors from "cors";
+import dotenv from "dotenv";
+import contestRouter from "./routes/contest.js";
+import userRouter from "./routes/userRoutes.js";
+import forgotPasswordRouter from "./routes/forgetpassword.js";
+import businessRoutes from "./routes/businessRoutes.js";
+
+dotenv.config();
 
 const app = express();
 
 // CORS configuration
 app.use(cors({ origin: "*" }));
 
-// // CORS configuration
+// Uncomment this if specific CORS configurations are needed
 // app.use(cors({
 //   origin: 'http://localhost:3000', // Replace with your frontend URL
 //   credentials: true, // Allow credentials (cookies, etc.)
@@ -23,18 +29,14 @@ mongoose
   .then(() => console.log("MongoDB connected"))
   .catch((err) => console.error("MongoDB connection error:", err));
 
-// Route handlers
-const registerRouter = require("./routes/register");
-app.use("/register", registerRouter);
-
-const loginRouter = require("./routes/login");
-app.use("/login", loginRouter);
-
-const forgotPasswordRouter = require("./routes/forgetpassword"); // Ensure the filename matches
+app.use((req, res, next) => {
+  console.log(`${req.method} request for '${req.url}'`);
+  next();
+});
+app.use("/api/user", userRouter);
+app.use("/api/business", businessRoutes);
 app.use("/forgot_password", forgotPasswordRouter);
-
-const contestRouter = require("./routes/contest");
-app.use("/contest", contestRouter);
+app.use("/api/contest", contestRouter);
 
 // Start the server
 const PORT = process.env.PORT || 5000; // Allow PORT to be set in the environment
