@@ -67,3 +67,90 @@ export const loginUser = async (req, res) => {
     res.status(500).json({ message: "Server error", error });
   }
 };
+
+export const updateUser = async (req, res) => {
+  try {
+    const { userId } = req.params;
+    console.log("This is ID:", userId);
+
+    const { firstName, lastName, userName } = req.body;
+
+    const updatedData = { firstName, lastName, userName };
+    const updatedUser = await User.findByIdAndUpdate(userId, updatedData, {
+      new: true,
+    });
+
+    if (!updatedUser) {
+      return res.status(404).json({ message: "User not found." });
+    }
+
+    const { password: _, ...userData } = updatedUser.toObject(); // Remove password from response
+
+    res.status(200).json({
+      message: "Account data updated successfully.",
+      user: userData,
+    });
+  } catch (error) {
+    console.log(error); // Log any errors for debugging
+
+    res.status(500).json({ message: "Server error.", error: error.message }); // Send a 500 error if something fails
+  }
+};
+
+export const updatePassword = async (req, res) => {
+  try {
+    const { currentPassword, newPassword } = req.body;
+    const { userId } = req.params;
+
+    if (!currentPassword || !newPassword) {
+      return res
+        .status(400)
+        .json({ message: "Both current and new passwords are required." });
+    }
+
+    if (newPassword.length < 6) {
+      return res
+        .status(400)
+        .json({ message: "New password must be at least 6 characters long." });
+    }
+
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: "User not found." });
+    }
+
+    const isMatch = await bcrypt.compare(currentPassword, user.password);
+    if (!isMatch) {
+      return res
+        .status(400)
+        .json({ message: "Current password is incorrect." });
+    }
+
+    const hashedNewPassword = await bcrypt.hash(newPassword, 10);
+
+    user.password = hashedNewPassword;
+    await user.save();
+
+    res.status(200).json({ message: "Password updated successfully." });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server error.", error: error.message });
+  }
+};
+
+export const deleteAccount = async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: "User not found." });
+    }
+
+    await User.findByIdAndDelete(userId);
+
+    res.status(200).json({ message: "User account deleted successfully." });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server error.", error: error.message });
+  }
+};

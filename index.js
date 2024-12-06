@@ -12,19 +12,16 @@ dotenv.config();
 
 const app = express();
 
-// CORS configuration
-app.use(cors({ origin: "*" }));
+app.use(
+  cors({
+    origin: process.env.FRONTEND_URL,
+    credentials: true,
+  })
+);
 
-// Uncomment this if specific CORS configurations are needed
-// app.use(cors({
-//   origin: 'http://localhost:3000', // Replace with your frontend URL
-//   credentials: true, // Allow credentials (cookies, etc.)
-// }));
+app.use(express.json());
 
-app.use(express.json()); // Middleware to parse JSON bodies
-
-// MongoDB connection
-const mongoURI = process.env.MONGODB_URI; // Use environment variable for MongoDB URI
+const mongoURI = process.env.MONGODB_URI;
 mongoose
   .connect(mongoURI)
   .then(() => console.log("MongoDB connected"))
