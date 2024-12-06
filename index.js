@@ -6,6 +6,7 @@ import contestRouter from "./routes/contest.js";
 import userRouter from "./routes/userRoutes.js";
 import forgotPasswordRouter from "./routes/forgetpassword.js";
 import businessRoutes from "./routes/businessRoutes.js";
+import stripeRoutes from "./routes/stripeRoutes.js";
 
 dotenv.config();
 
@@ -37,6 +38,7 @@ app.use("/api/user", userRouter);
 app.use("/api/business", businessRoutes);
 app.use("/forgot_password", forgotPasswordRouter);
 app.use("/api/contest", contestRouter);
+app.use("/api/stripe", stripeRoutes);
 
 // Start the server
 const PORT = process.env.PORT || 5000; // Allow PORT to be set in the environment
