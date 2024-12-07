@@ -26,7 +26,7 @@ app.listen(PORT, () => {
 
 app.use(
   cors({
-    origin: process.env.FRONTEND_URL,
+    origin: process.env.FRONTEND_URL || "https://lss-client-jade.vercel.app",
     credentials: true,
   })
 );
