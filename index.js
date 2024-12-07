@@ -10,7 +10,19 @@ import stripeRoutes from "./routes/stripeRoutes.js";
 
 dotenv.config();
 
+const mongoURI = process.env.MONGODB_URI;
+mongoose
+  .connect(mongoURI)
+  .then(() => console.log("MongoDB connected"))
+  .catch((err) => console.error("MongoDB connection error:", err));
+
 const app = express();
+app.use(express.json());
+
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`);
+});
 
 app.use(
   cors({
@@ -19,26 +31,23 @@ app.use(
   })
 );
 
-app.use(express.json());
-
-const mongoURI = process.env.MONGODB_URI;
-mongoose
-  .connect(mongoURI)
-  .then(() => console.log("MongoDB connected"))
-  .catch((err) => console.error("MongoDB connection error:", err));
-
 app.use((req, res, next) => {
   console.log(`${req.method} request for '${req.url}'`);
   next();
 });
+
 app.use("/api/user", userRouter);
 app.use("/api/business", businessRoutes);
 app.use("/forgot_password", forgotPasswordRouter);
 app.use("/api/contest", contestRouter);
 app.use("/api/stripe", stripeRoutes);
 
-// Start the server
-const PORT = process.env.PORT || 5000; // Allow PORT to be set in the environment
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
+app.use((err, req, res, next) => {
+  const statusCode = err.statusCode || 500;
+  const message = err.message || "Internal Server Error";
+  res.status(statusCode).json({
+    success: false,
+    statusCode,
+    message,
+  });
 });
