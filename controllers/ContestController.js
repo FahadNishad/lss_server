@@ -63,7 +63,28 @@ const getContest = async (req, res) => {
     res.status(500).json({ message: "Failed to retrieve contest" });
   }
 };
-export { createContest, getContest };
+const getContestsByUserId = async (req, res) => {
+  try {
+    const { userId } = req.params;
+
+    const contests = await Contest.find({ userId }).select(
+      "contestName topTeamName userId leftTeamName"
+    );
+
+    if (!contests || contests.length === 0) {
+      return res
+        .status(404)
+        .json({ message: "No contests found for this user" });
+    }
+
+    res.status(200).json(contests);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Failed to retrieve contests" });
+  }
+};
+
+export { createContest, getContest, getContestsByUserId };
 
 const generateUniqueRandomNumbers = (size) => {
   const numbers = new Set();
