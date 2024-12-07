@@ -24,29 +24,16 @@ app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
 
-// app.use(
-//   cors({
-//     origin: process.env.FRONTEND_URL || "https://lss-client-jade.vercel.app",
-//     credentials: true,
-//   })
-// );
-
-app.use((req, res, next) => {
-  res.setHeader(
-    "Access-Control-Allow-Origin",
-    process.env.FRONTEND_URL || "https://lss-client-jade.vercel.app"
-  );
-  res.setHeader(
-    "Access-Control-Allow-Methods",
-    "GET, POST, PUT, DELETE, OPTIONS"
-  );
-  res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
-  res.setHeader("Access-Control-Allow-Credentials", "true");
-  next();
-});
+app.use(
+  cors({
+    origin: process.env.FRONTEND_URL,
+    credentials: true,
+  })
+);
 
 app.use((req, res, next) => {
   console.log(`${req.method} request for '${req.url}'`);
+
   next();
 });
 
