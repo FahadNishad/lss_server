@@ -7,6 +7,7 @@ import userRouter from "./routes/userRoutes.js";
 import forgotPasswordRouter from "./routes/forgetpassword.js";
 import businessRoutes from "./routes/businessRoutes.js";
 import stripeRoutes from "./routes/stripeRoutes.js";
+import loggerMiddleware from "./middlewares/loggerMiddleware.js";
 
 dotenv.config();
 
@@ -42,6 +43,8 @@ app.use("/api/business", businessRoutes);
 app.use("/forgot_password", forgotPasswordRouter);
 app.use("/api/contest", contestRouter);
 app.use("/api/stripe", stripeRoutes);
+
+app.use(loggerMiddleware);
 
 app.use((err, req, res, next) => {
   const statusCode = err.statusCode || 500;

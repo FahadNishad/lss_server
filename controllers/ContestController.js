@@ -122,19 +122,19 @@ const updateContest = async (req, res) => {
       return res.status(400).json({ message: "Contest ID is required" });
     }
 
-    const contest = await Contest.findById(contestId);
-    if (!contest) {
+    const updatedContest = await Contest.findByIdAndUpdate(
+      contestId,
+      { $set: updateFields },
+      { new: true, runValidators: true }
+    );
+
+    if (!updatedContest) {
       return res.status(404).json({ message: "Contest not found" });
     }
-    Object.keys(updateFields).forEach((key) => {
-      contest[key] = updateFields[key];
-    });
-
-    await contest.save();
 
     res.status(200).json({
       message: "Contest updated successfully",
-      updatedContest: contest,
+      updatedContest,
     });
   } catch (error) {
     console.error(error);
@@ -240,6 +240,17 @@ const reserveSquare = async (req, res) => {
     if (!contest) {
       return res.status(404).json({ error: "Contest not found" });
     }
+
+    const userReserveCount = contest.square
+      .flat()
+      .filter((sq) => sq.userId?.toString() === userId && sq.reserved).length;
+
+    if (userReserveCount >= 4) {
+      return res
+        .status(400)
+        .json({ message: "You can only reserve up to 4 squares" });
+    }
+
     let targetSquare = null;
     for (let row of contest.square) {
       targetSquare = row.find((sq) => sq._id.toString() === squareId);
@@ -257,7 +268,7 @@ const reserveSquare = async (req, res) => {
     targetSquare.reserved = true;
     targetSquare.userId = userId;
     targetSquare.userName = userName;
-    targetSquare.paymentStatus = "Pending";
+    targetSquare.paymentStatus = "pending";
 
     await contest.save();
 
@@ -272,6 +283,44 @@ const reserveSquare = async (req, res) => {
       .json({ error: "An error occurred while reserving the square" });
   }
 };
+const squarePaymentSuccess = async (req, res) => {
+  try {
+    const { contestId, squareId, userId } = req.body;
+
+    if (!contestId || !squareId) {
+      return res.status(400).json({
+        error: "contestId, squareId, userId, and userName are required",
+      });
+    }
+
+    const contest = await Contest.findById(contestId);
+    if (!contest) {
+      return res.status(404).json({ error: "Contest not found" });
+    }
+    let targetSquare = null;
+    for (let row of contest.square) {
+      targetSquare = row.find((sq) => sq._id.toString() === squareId);
+      if (targetSquare) break;
+    }
+
+    if (!targetSquare) {
+      return res.status(404).json({ error: "Square not found" });
+    }
+
+    targetSquare.paymentStatus = "completed";
+    await contest.save();
+
+    res.status(200).json({
+      message: "Square payment success",
+      updatedSquare: targetSquare,
+    });
+  } catch (error) {
+    console.error(error);
+    res
+      .status(500)
+      .json({ error: "An error occurred while processing the payment" });
+  }
+};
 
 export {
   createContest,
@@ -283,4 +332,5 @@ export {
   assignManualNumbers,
   clearNumbers,
   reserveSquare,
+  squarePaymentSuccess,
 };

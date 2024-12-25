@@ -3,7 +3,7 @@ import mongoose from "mongoose";
 const ContestSchema = new mongoose.Schema({
   contestName: {
     type: String,
-    required: true,
+    required: false,
   },
   userId: {
     type: mongoose.Schema.Types.ObjectId,
@@ -32,7 +32,7 @@ const ContestSchema = new mongoose.Schema({
     default: "open",
   },
   entryCost: {
-    type: String,
+    type: Number,
   },
   canPlayersEdit: {
     type: Boolean,
@@ -50,8 +50,7 @@ const ContestSchema = new mongoose.Schema({
         },
         paymentStatus: {
           type: String,
-          enum: ["Pending", "Completed", "Refunded"],
-          default: "Pending",
+          default: "pending",
         },
       },
     ],
