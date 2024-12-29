@@ -95,28 +95,3 @@ const ContestSchema = new mongoose.Schema({
 
 const Contest = mongoose.model("Contest", ContestSchema);
 export default Contest;
-
-// // New fields for live game and score integration
-// gameDetails: {
-//   gameId: { type: String }, // ID from the sports API for the game
-//   gameDate: { type: Date }, // The game date and time
-//   gameType: { type: String, enum: ["NFL", "NBA", "MLB"] }, // Game type (NFL, NBA, etc.)
-//   gameUrl: { type: String, default: "" }, // Link to external page or API for more game details
-//   liveScore: {
-//     homeScore: { type: Number, default: 0 }, // Home team score
-//     awayScore: { type: Number, default: 0 }, // Away team score
-//     quarter: { type: Number, default: 1 }, // Current quarter/period
-//   },
-//   topTeamLogo: { type: String, default: "" }, // URL for the home team logo
-//   leftTeamLogo: { type: String, default: "" }, // URL for the away team logo
-// },
-
-// // New fields for prize and media
-// prizeDetails: {
-//   prizeAmount: { type: Number, required: true }, // Dollar amount for the prize
-//   prizeDescription: { type: String, default: "No description available" }, // A text description of the prize
-//   prizeMedia: [{ type: String }], // Array of URLs for images or videos related to the prize
-//   prizeLinks: [{ type: String }], // Array of external links to prize-related content (images/videos)
-// },
-
-// Payment status
