@@ -5,6 +5,7 @@ import dotenv from "dotenv";
 import contestRoutes from "./routes/contest.js";
 import userRoutes from "./routes/userRoutes.js";
 import nflRoutes from "./routes/nflRoutes.js";
+import nbaRoutes from "./routes/nbaRoutes.js";
 import forgotPasswordRouter from "./routes/forgetpassword.js";
 import businessRoutes from "./routes/businessRoutes.js";
 import stripeRoutes from "./routes/stripeRoutes.js";
@@ -44,6 +45,7 @@ app.use("/api/business", businessRoutes);
 app.use("/forgot_password", forgotPasswordRouter);
 app.use("/api/contest", contestRoutes);
 app.use("/api/nfl", nflRoutes);
+app.use("/api/nba", nbaRoutes);
 app.use("/api/stripe", stripeRoutes);
 
 app.use(loggerMiddleware);

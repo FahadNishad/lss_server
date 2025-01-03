@@ -10,14 +10,19 @@ const createContest = async (req, res) => {
       playerPassword,
       gridSize,
       userId,
+      gameDate,
+      gameTime,
+      gameId,
     } = req.body;
 
     const gridSaq = parseInt(gridSize);
+    let hashedPassword;
     if (![25, 50, 100].includes(gridSaq)) {
       return res.status(400).json({ message: "Invalid grid size" });
     }
-
-    const hashedPassword = await bcrypt.hash(playerPassword, 10);
+    if (playerPassword) {
+      hashedPassword = await bcrypt.hash(playerPassword, 10);
+    }
     const square = Array.from({ length: Math.sqrt(gridSaq) }, () =>
       Array.from({ length: Math.sqrt(gridSaq) }, () => ({
         reserved: false,
@@ -28,9 +33,12 @@ const createContest = async (req, res) => {
     const contest = new Contest({
       contestName,
       topTeamName,
+      gameDate,
+      gameId,
+      gameTime,
       userId,
       leftTeamName,
-      playerPassword: hashedPassword,
+      playerPassword: hashedPassword || "",
       gridSize: gridSaq,
       square,
       randomRowNumbers: [],

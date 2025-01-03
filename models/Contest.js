@@ -10,6 +10,18 @@ const ContestSchema = new mongoose.Schema({
     ref: "Business",
     required: true,
   },
+  gameId: {
+    type: String,
+  },
+  gameTime: {
+    type: String,
+  },
+  gameDate: {
+    type: String,
+  },
+  contestType: {
+    type: String,
+  },
   topTeamName: {
     type: String,
     required: true,
@@ -20,7 +32,7 @@ const ContestSchema = new mongoose.Schema({
   },
   playerPassword: {
     type: String,
-    required: false,
+    // required: false,
   },
   gridSize: {
     type: Number,
