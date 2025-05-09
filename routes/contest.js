@@ -6,6 +6,7 @@ import {
   createContest,
   getContest,
   getContestsByUserId,
+  getReservedSquare,
   reserveSquare,
   squarePaymentSuccess,
   updateContest,
@@ -24,5 +25,6 @@ router.post("/assignManualNumbers", assignManualNumbers);
 router.post("/reserveSquare", reserveSquare);
 router.post("/square-payment-success", squarePaymentSuccess);
 router.get("/getContestsByUserId/:userId", getContestsByUserId);
+router.post("/getReservedSquare", getReservedSquare);
 
 export default router;

@@ -1,6 +1,7 @@
 import bcrypt from "bcryptjs";
 import Contest from "../models/Contest.js";
 import { generateUniqueRandomNumbers } from "../helper/helper.js";
+import User from "../models/User.js";
 const createContest = async (req, res) => {
   try {
     const {
@@ -13,6 +14,7 @@ const createContest = async (req, res) => {
       gameDate,
       gameTime,
       gameId,
+      contestType,
     } = req.body;
 
     const gridSaq = parseInt(gridSize);
@@ -41,6 +43,7 @@ const createContest = async (req, res) => {
       playerPassword: hashedPassword || "",
       gridSize: gridSaq,
       square,
+      contestType,
       randomRowNumbers: [],
       randomColNumbers: [],
     });
@@ -59,7 +62,10 @@ const createContest = async (req, res) => {
 const getContest = async (req, res) => {
   try {
     const { contestId } = req.params;
-    const contest = await Contest.findById(contestId);
+    const contest = await Contest.findById(contestId).populate({
+      path: "userId",
+      select: "firstName lastName email lastName",
+    });
 
     if (!contest) {
       return res.status(404).json({ message: "Contest not found" });
@@ -105,9 +111,11 @@ const getContestsByUserId = async (req, res) => {
   try {
     const { userId } = req.params;
 
-    const contests = await Contest.find({ userId }).select(
-      "contestName topTeamName userId leftTeamName"
-    );
+    const contests = await Contest.find({ userId })
+      .select("contestName topTeamName userId leftTeamName createdAt")
+      .sort({ createdAt: -1 });
+
+    console.log("Retrieved contests:", contests);
 
     if (!contests || contests.length === 0) {
       return res
@@ -117,7 +125,7 @@ const getContestsByUserId = async (req, res) => {
 
     res.status(200).json(contests);
   } catch (error) {
-    console.error(error);
+    console.error("Error retrieving contests:", error);
     res.status(500).json({ message: "Failed to retrieve contests" });
   }
 };
@@ -291,6 +299,60 @@ const reserveSquare = async (req, res) => {
       .json({ error: "An error occurred while reserving the square" });
   }
 };
+const getReservedSquare = async (req, res) => {
+  try {
+    const { contestId } = req.body;
+
+    if (!contestId) {
+      return res.status(400).json({
+        error: "contestId is required",
+      });
+    }
+    const contest = await Contest.findById(contestId);
+    if (!contest) {
+      return res.status(404).json({ error: "Contest not found" });
+    }
+    const allSquares = contest.square.flat();
+    const reservedSquares = allSquares.filter((sq) => sq.reserved === true);
+    const squaresSold = reservedSquares.length;
+    const playerIds = new Set();
+    reservedSquares.forEach((sq) => {
+      if (sq.userId) {
+        playerIds.add(sq.userId.toString());
+      }
+    });
+    const playerCount = playerIds.size;
+    const totalSquares = allSquares.length;
+    const availableSquareCount = totalSquares - squaresSold;
+    const populatedSquares = await Promise.all(
+      reservedSquares.map(async (sq) => {
+        if (sq.userId) {
+          const user = await User.findById(sq.userId).select(
+            "_id firstName email lastName"
+          );
+          return {
+            ...sq.toObject(),
+            userId: user,
+          };
+        }
+        return sq;
+      })
+    );
+
+    res.status(200).json({
+      message: "Reserved squares retrieved successfully",
+      squaresSold,
+      playerCount,
+      availableSquares: availableSquareCount,
+      reservedSquares: populatedSquares,
+    });
+  } catch (error) {
+    console.error(error);
+    res
+      .status(500)
+      .json({ error: "An error occurred while retrieving reserved squares" });
+  }
+};
 const squarePaymentSuccess = async (req, res) => {
   try {
     const { contestId, squareId, userId } = req.body;
@@ -341,4 +403,5 @@ export {
   clearNumbers,
   reserveSquare,
   squarePaymentSuccess,
+  getReservedSquare,
 };
